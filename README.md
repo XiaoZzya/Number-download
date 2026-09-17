@@ -1,137 +1,138 @@
-# StreamGrab 2.0
+# Number download
 
-StreamGrab 是面向无桌面 Debian 13 服务器的交互式下载编排工具。输入番号、搜索关键字或作品页地址后，它通过 Xvfb 中的真实 Chromium 定位公开作品页、监听并验证 HLS 地址，再调用 [`N_m3u8DL-RE`](https://github.com/nilaoda/N_m3u8DL-RE) 下载和混流。
+Number download（命令名 `nd`）是面向 Debian 13 x86_64 无桌面服务器的交互式下载编排工具。它使用 Xvfb 中的 Chromium 定位公开作品页面并捕获公开 HLS 地址，再调用 [`N_m3u8DL-RE`](https://github.com/nilaoda/N_m3u8DL-RE) 下载和混流。
 
-> 仅用于你有权访问和下载的内容。StreamGrab 不自动登录、不导出 Cookie、不处理验证码，也不绕过 DRM、付费墙或访问控制。
+> 仅用于你有权访问和下载的内容。ND 不自动登录、不导出 Cookie、不解决验证码，也不绕过 DRM、付费墙或访问控制。
 
-## 目标环境
+## 推荐环境
 
 - Debian 13 (trixie) x86_64
-- root 运行
+- 推荐普通用户安装和运行
 - Chromium + Xvfb，无需桌面环境
-- 默认成品目录 `/data/downloads/ss`
-- 默认短命令 `d`
+- Python 3.11+
 
-用户已明确选择以 root + Chromium `--no-sandbox` 运行。该模式降低浏览器进程隔离能力，每次启动都会显示警告；不要访问不受信任的其他网站。
+普通用户运行 Chromium 会保留沙箱。root 模式会显示安全警告并使用 `--no-sandbox`，不推荐日常使用。
 
 ## 一键部署
 
-Debian 13 x86_64 使用 root 执行。源码会保存在本机，可先审查脚本；不使用 `curl | bash`：
+### 普通用户（推荐）
+
+```bash
+sudo apt-get update && sudo apt-get install -y git
+git clone https://github.com/XiaoZzya/Number-download.git "$HOME/.local/share/ND/source"
+"$HOME/.local/share/ND/source/install.sh"
+```
+
+如果当前用户不能执行第一行，请让管理员预装 `git`，然后以普通用户执行后两行。安装器发现其他系统依赖缺失时，会询问是否使用 `sudo apt-get` 安装；没有 sudo 时会显示需要管理员执行的包列表。
+
+### root（不推荐）
 
 ```bash
 apt-get update && apt-get install -y git
-git clone https://github.com/XiaoZzya/Number-download.git /data/dd/source
-/data/dd/source/install.sh
+git clone https://github.com/XiaoZzya/Number-download.git /opt/ND/source
+/opt/ND/source/install.sh
 ```
 
-以后更新程序只需：
+安装菜单：
+
+```text
+1. 安装或升级
+2. 卸载
+3. 打赏支持
+0. 退出
+```
+
+普通用户默认值：
+
+```text
+程序：~/.local/share/ND
+成品：~/Downloads/ND
+命令：~/.local/bin/nd
+配置：~/.local/share/ND/etc/config.toml
+profile：~/.local/share/ND/profile/chromium
+```
+
+root 默认值：
+
+```text
+程序：/opt/ND
+成品：/root/Downloads/ND
+命令：/usr/local/bin/nd
+```
+
+所有路径都能在安装时修改。非交互安装示例：
 
 ```bash
-d update
+./install.sh --install-dir "$HOME/.local/share/ND" \
+  --output-dir "$HOME/Downloads/ND" --command-name nd
 ```
 
-更新器只接受本项目的固定 GitHub 地址并使用快进合并；源码目录存在未提交修改时会拒绝覆盖。配置、历史、成品和 Chromium profile 都会保留。
-
-## 本地源码安装
-
-先把完整源码复制或克隆到服务器，检查 [`install.sh`](install.sh)，然后从源码目录运行：
-
-```bash
-chmod +x install.sh
-./install.sh --dry-run
-./install.sh
-```
-
-安装器只支持 Debian 13 x86_64，并执行以下工作：
-
-- 通过 apt 安装 Chromium、Xvfb、ffmpeg、Python venv、CA 证书和中文字体。
-- 程序安装到 `/data/dd/app`，Python环境放在 `/data/dd/venv`。
-- 配置写入 `/data/dd/etc/config.toml`，重装时不会覆盖已有配置。
-- Chromium持久 profile 保存到 `/data/dd/profile/chromium`。
-- 从官方 GitHub Release 安装当前平台的 `N_m3u8DL-RE`。
-- 创建 `/usr/local/bin/d`；若 `d` 已被占用，会显示现有路径并询问其他名称，不覆盖旧命令。
-
-安装后检查：
-
-```bash
-d doctor
-```
+安装器不会静默修改 shell 配置。如果 `~/.local/bin` 不在 PATH，会显示需要添加的命令。
 
 ## 使用
 
 ```bash
-d IPX-850
-d ipx850
-d https://jable.tv/videos/ipx-850/
-d IPX-850 --quality 1080p
-d IPX-850 --threads 12
-d 河北彩花
-d doctor
-d history --limit 20
-d update
-d update-tools
+nd IPX-850
+nd 121914-760
+nd 河北彩花
+nd https://jable.tv/videos/ipx-850/
+nd IPX-850 --quality 1080p
+nd IPX-850 --threads 12
+nd doctor
+nd history --limit 20
+nd donate
+nd update
+nd update-tools
 ```
 
-标准流程：
+番号输入会优先打开精确作品页；页面不存在或输入普通关键字时才进入搜索并显示选择菜单。选择作品后直接解析，不再二次确认。
 
-1. 番号优先打开精确作品页；关键字或直达失败时进入搜索。
-2. 搜索时展示匹配作品，选择后直接进入作品页。
-3. 监听 request/response，优先捕获配置的主视频 CDN。
-4. 展示清晰度，音频自动选择最佳轨道。
-5. 使用 `N_m3u8DL-RE` 输出 MP4，全部字幕保存为独立 SRT。
-6. ffprobe 验证视频流、时长、分辨率和大小。
-7. 验证成功后自动清理本次分片；失败或中断时保留。
+成品文件名直接使用网页标题，因为标题通常已经包含番号。ffprobe 验证成功后自动清理当前任务分片；下载、混流、验证失败或中断时保留现场。
 
-### 常用参数
+## 更新
 
-- `--quality best|720p|1080p`：跳过画质询问。
-- `--threads N`：临时指定分片下载并发数；默认 8。
-- ffprobe 验证成功后自动清理本次任务目录；任何失败都会保留分片。
-- `--output DIR`：临时覆盖成品目录。
-- `--downloader PATH`：临时指定 `N_m3u8DL-RE`。
-- `--extractor-proxy URL`：仅用于 Chromium 和播放列表检查；不允许在 URL 中嵌入账号密码。
-- `--diagnose`：失败时额外显示诊断文件位置。
-- `--dry-run`：完成解析和选择，只显示脱敏下载命令。
-- `--no-history`：不保存本次简要历史。
+```bash
+nd update
+```
 
-## 目录与安全清理
+菜单提供：
 
 ```text
-/data/dd/app                         程序
-/data/dd/venv                        Python环境
-/data/dd/etc/config.toml             配置
-/data/dd/profile/chromium            持久浏览器profile
-/data/dd/tools                       N_m3u8DL-RE
-/data/dd/history.sqlite3             简要历史
-/data/dd/diagnostics/latest.txt      最近一次失败诊断
-/data/dd/diagnostics/latest.png      最近一次失败截图
-/data/downloads/ss                   MP4与SRT成品
-/data/downloads/ss/.data/<番号>      当前任务分片
+1. 根据当前配置升级
+2. 重新配置后升级
+0. 取消
 ```
 
-清理仅在 ffprobe 验证成功后发生，并且目标必须是 `.data` 下名称等于当前规范化番号的直接子目录。程序拒绝清理：
+更新器只接受本项目固定 GitHub 地址，使用 `git merge --ff-only`，并在源码存在未提交修改时拒绝覆盖。根据当前配置升级不会改变安装目录、下载目录、命令、历史或 profile。
 
-- `.data` 基础目录本身；
-- 其他番号目录；
-- 符号链接、挂载点或路径穿越目标；
-- 任何下载、混流、验证失败或被中断的任务。
+`nd update-tools` 只更新 `N_m3u8DL-RE`。
 
-清理失败只显示警告，不会删除已完成的 MP4/SRT。无交互终端时，验证成功后默认清理；验证失败始终保留现场。
+## 卸载
 
-## 验证页与诊断
+再次运行源码目录中的 `install.sh`，选择“卸载”：
 
-程序会等待普通 JavaScript 检查。如果页面仍要求验证码或人工验证，程序停止，不尝试解决或绕过。最近一次失败会覆盖：
+```text
+1. 卸载程序，保留配置、历史、profile、成品和分片
+2. 彻底删除程序、配置、历史、profile、成品和分片
+0. 取消
+```
 
-- `/data/dd/diagnostics/latest.txt`
-- `/data/dd/diagnostics/latest.png`
+彻底删除会列出安装目录与下载目录，并要求输入大写 `DELETE`。卸载器拒绝删除 `/`、用户家目录、`/opt`、`/usr`、`/home`、`/root`、符号链接和挂载点。
 
-诊断包含阶段、HTTP状态、脱敏URL和截图，不包含 Cookie、完整 HTML 或完整临时 m3u8。
+## 常用参数
 
-## 配置
+- `--quality best|720p|1080p`：跳过画质询问。
+- `--threads N`：临时指定分片并发数；默认 8。
+- `--output DIR`：临时覆盖成品目录。
+- `--downloader PATH`：临时指定 `N_m3u8DL-RE`。
+- `--extractor-proxy URL`：仅用于 Chromium 和播放列表检查。
+- `--diagnose`：失败时显示诊断文件位置。
+- `--dry-run`：只显示脱敏下载命令。
+- `--no-history`：不保存本次历史。
 
-配置文件为 `/data/dd/etc/config.toml`，完整字段参考 [`config.example.toml`](config.example.toml)。常用字段包括 Chromium、profile、首选 CDN、输出与临时目录、页面超时、捕获超时和 `download_threads = 8`。成品文件名直接使用网页标题（标题通常已包含番号），不会再次拼接番号；重名时自动生成带序号的新名称。
+## 验证页与隐私
 
-`allow_m3u8_fallback = false` 表示只接受首选 CDN。确认站点更换主 CDN 后再修改 `m3u8_preferred_domain`，不要盲目开启备用流。
+程序会等待普通 JavaScript 检查。页面仍要求验证码或人工验证时会停止，不尝试解决或绕过。最近一次失败诊断只包含阶段、HTTP状态、脱敏URL和截图，不保存 Cookie、完整 HTML、m3u8 查询参数或代理认证信息。
 
 ## 开发与测试
 
@@ -141,4 +142,4 @@ python3 -m venv .venv
 .venv/bin/pytest
 ```
 
-测试使用本地 fixture、模拟浏览器事件和公开授权 HLS，不访问或下载第三方受限内容。
+项目采用 MIT License。

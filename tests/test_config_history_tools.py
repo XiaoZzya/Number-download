@@ -9,6 +9,7 @@ import pytest
 from streamgrab.config import Config, load_config, save_config
 from streamgrab.history import HistoryStore
 from streamgrab.tools import ReleaseAsset, _extract_binary, select_asset, should_check
+from streamgrab.paths import APP_NAME
 
 
 def test_config_round_trip(tmp_path: Path):
@@ -58,3 +59,9 @@ def test_update_check_invalid_or_empty_is_due():
     assert should_check("")
     assert should_check("not-a-date")
 
+
+def test_public_defaults_do_not_use_private_server_paths():
+    config = Config()
+    assert APP_NAME == "ND"
+    assert "/data/dd" not in repr(config)
+    assert "/data/downloads/ss" not in repr(config)

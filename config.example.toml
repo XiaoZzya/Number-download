@@ -1,18 +1,18 @@
-# 复制到 `streamgrab doctor` 显示的配置目录后按需修改。
-default_output = "/data/downloads/ss"
-downloader_path = "/data/dd/tools/N_m3u8DL-RE"
+# 复制到 `nd doctor` 显示的配置目录后按需修改。
+default_output = "/home/your-user/Downloads/ND"
+downloader_path = "/home/your-user/.local/share/ND/tools/N_m3u8DL-RE"
 extractor_proxy = ""
 timeout_seconds = 20
 last_update_check = ""
 chromium_path = "/usr/bin/chromium"
-browser_profile = "/data/dd/profile/chromium"
-diagnostics_dir = "/data/dd/diagnostics"
-temp_root = "/data/downloads/ss/.data"
+browser_profile = "/home/your-user/.local/share/ND/profile/chromium"
+diagnostics_dir = "/home/your-user/.local/share/ND/diagnostics"
+temp_root = "/home/your-user/Downloads/ND/.data"
 locale = "zh-CN"
 page_timeout_ms = 45000
 search_wait_ms = 5000
 capture_timeout_ms = 30000
 m3u8_preferred_domain = "mushroomtrack.com"
 allow_m3u8_fallback = false
-allow_root_no_sandbox = true
+allow_root_no_sandbox = false
 download_threads = 8

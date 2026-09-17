@@ -5,27 +5,31 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .paths import config_dir
+from .paths import config_dir, data_dir
+
+
+def _default_data_path(*parts: str) -> str:
+    return str(data_dir().joinpath(*parts))
 
 
 @dataclass(frozen=True, slots=True)
 class Config:
-    default_output: str = "/data/downloads/ss"
+    default_output: str = str(Path.home() / "Downloads" / "ND")
     downloader_path: str = ""
     extractor_proxy: str = ""
     timeout_seconds: float = 20.0
     last_update_check: str = ""
     chromium_path: str = "/usr/bin/chromium"
-    browser_profile: str = "/data/dd/profile/chromium"
-    diagnostics_dir: str = "/data/dd/diagnostics"
-    temp_root: str = "/data/downloads/ss/.data"
+    browser_profile: str = _default_data_path("profile", "chromium")
+    diagnostics_dir: str = _default_data_path("diagnostics")
+    temp_root: str = str(Path.home() / "Downloads" / "ND" / ".data")
     locale: str = "zh-CN"
     page_timeout_ms: int = 45_000
     search_wait_ms: int = 5_000
     capture_timeout_ms: int = 30_000
     m3u8_preferred_domain: str = "mushroomtrack.com"
     allow_m3u8_fallback: bool = False
-    allow_root_no_sandbox: bool = True
+    allow_root_no_sandbox: bool = False
     download_threads: int = 8
 
     def with_update_check_now(self) -> "Config":
@@ -43,22 +47,22 @@ def load_config(path: Path | None = None) -> Config:
     with target.open("rb") as handle:
         raw = tomllib.load(handle)
     return Config(
-        default_output=str(raw.get("default_output", "/data/downloads/ss")),
+        default_output=str(raw.get("default_output", str(Path.home() / "Downloads" / "ND"))),
         downloader_path=str(raw.get("downloader_path", "")),
         extractor_proxy=str(raw.get("extractor_proxy", "")),
         timeout_seconds=float(raw.get("timeout_seconds", 20)),
         last_update_check=str(raw.get("last_update_check", "")),
         chromium_path=str(raw.get("chromium_path", "/usr/bin/chromium")),
-        browser_profile=str(raw.get("browser_profile", "/data/dd/profile/chromium")),
-        diagnostics_dir=str(raw.get("diagnostics_dir", "/data/dd/diagnostics")),
-        temp_root=str(raw.get("temp_root", "/data/downloads/ss/.data")),
+        browser_profile=str(raw.get("browser_profile", _default_data_path("profile", "chromium"))),
+        diagnostics_dir=str(raw.get("diagnostics_dir", _default_data_path("diagnostics"))),
+        temp_root=str(raw.get("temp_root", str(Path.home() / "Downloads" / "ND" / ".data"))),
         locale=str(raw.get("locale", "zh-CN")),
         page_timeout_ms=int(raw.get("page_timeout_ms", 45_000)),
         search_wait_ms=int(raw.get("search_wait_ms", 5_000)),
         capture_timeout_ms=int(raw.get("capture_timeout_ms", 30_000)),
         m3u8_preferred_domain=str(raw.get("m3u8_preferred_domain", "mushroomtrack.com")),
         allow_m3u8_fallback=bool(raw.get("allow_m3u8_fallback", False)),
-        allow_root_no_sandbox=bool(raw.get("allow_root_no_sandbox", True)),
+        allow_root_no_sandbox=bool(raw.get("allow_root_no_sandbox", False)),
         download_threads=int(raw.get("download_threads", 8)),
     )
 

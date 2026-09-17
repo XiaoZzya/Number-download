@@ -23,7 +23,7 @@ class TaskLock:
                 fcntl.flock(self.handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError as exc:
             self.handle.close()
-            raise InputError("已有 StreamGrab 下载任务正在运行") from exc
+            raise InputError("已有 ND 下载任务正在运行") from exc
         return self
 
     def __exit__(self, exc_type, exc, traceback):

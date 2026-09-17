@@ -13,6 +13,7 @@ from . import __version__
 from .config import Config, config_path, load_config, save_config
 from .cleanup import directory_usage, prepare_task_directory, remove_verified_task_directory
 from .downloader import Downloader, find_binary
+from .donate import show_donation
 from .errors import InputError, NoPublicStreamError, StreamGrabError
 from .history import HistoryStore
 from .hls import HlsInspector, choose_variant
@@ -37,7 +38,7 @@ def _confirm(prompt: str, default: bool = True) -> bool:
 
 
 def _download_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="streamgrab", description="解析公开 HLS 地址并调用 N_m3u8DL-RE")
+    parser = argparse.ArgumentParser(prog="nd", description="解析公开 HLS 地址并调用 N_m3u8DL-RE")
     parser.add_argument("target", help="番号、搜索关键字或受支持的作品页 HTTPS 地址")
     parser.add_argument("--output", type=Path, help="保存目录")
     parser.add_argument("--quality", help="best、worst、720p、1080p 等")
@@ -48,12 +49,12 @@ def _download_parser() -> argparse.ArgumentParser:
     parser.add_argument("--diagnose", action="store_true", help="失败时显示诊断文件位置")
     parser.add_argument("--dry-run", action="store_true", help="解析并显示脱敏命令，但不下载")
     parser.add_argument("--no-history", action="store_true", help="不写入本地历史")
-    parser.add_argument("--version", action="version", version=f"StreamGrab {__version__}")
+    parser.add_argument("--version", action="version", version=f"ND {__version__}")
     return parser
 
 
 def _management_parser(command: str) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog=f"streamgrab {command}")
+    parser = argparse.ArgumentParser(prog=f"nd {command}")
     if command == "history":
         parser.add_argument("--limit", type=int, default=20)
     return parser
@@ -242,7 +243,7 @@ def _ensure_ffmpeg(*, dry_run: bool) -> None:
         hint = "请安装 ffmpeg 并把其 bin 目录加入当前用户 PATH"
     else:
         hint = "Debian/Ubuntu 可运行：sudo apt install ffmpeg"
-    raise InputError(f"未找到 ffmpeg；{hint}，然后运行 streamgrab doctor 检查")
+    raise InputError(f"未找到 ffmpeg；{hint}，然后运行 nd doctor 检查")
 
 
 def _weekly_update_notice(config: Config) -> None:
@@ -251,7 +252,7 @@ def _weekly_update_notice(config: Config) -> None:
     updated = config.with_update_check_now()
     try:
         asset = fetch_latest_release(min(config.timeout_seconds, 10))
-        print(f"工具版本检查：官方最新版本为 {asset.version}；需要更新时运行 streamgrab update-tools。")
+        print(f"工具版本检查：官方最新版本为 {asset.version}；需要更新时运行 nd update-tools。")
     except StreamGrabError:
         pass
     finally:
@@ -353,7 +354,7 @@ def run_doctor(argv: list[str]) -> int:
         playwright_status = "未安装"
     output = Path(config.default_output)
     free_gb = shutil.disk_usage(output if output.exists() else output.parent).free / (1024**3) if output.parent.exists() else 0
-    print(f"StreamGrab：{__version__}")
+    print(f"ND：{__version__}")
     print(f"Python：{sys.version.split()[0]} ({sys.executable})")
     print(f"配置文件：{config_path()}")
     print(f"数据目录：{data_dir()}")
@@ -373,7 +374,7 @@ def run_update(argv: list[str]) -> int:
     config = load_config()
     asset = fetch_latest_release(config.timeout_seconds)
     print(f"官方最新版本：{asset.version}（{asset.name}）")
-    if not _confirm("下载并安装到 StreamGrab 用户工具目录？"):
+    if not _confirm("下载并安装到 ND 工具目录？"):
         print("已取消。")
         return 0
     binary = install_release(asset)
@@ -421,12 +422,16 @@ def main(argv: list[str] | None = None) -> int:
             return run_self_update(arguments[1:])
         if arguments and arguments[0] == "history":
             return run_history(arguments[1:])
+        if arguments and arguments[0] == "donate":
+            _management_parser("donate").parse_args(arguments[1:])
+            show_donation()
+            return 0
         if not arguments:
             _download_parser().print_help()
             return 2
         if any(flag in arguments for flag in ("-h", "--help", "--version")):
             return run_download(arguments)
-        with TaskLock(data_dir() / "streamgrab.lock"):
+        with TaskLock(data_dir() / "nd.lock"):
             result = run_download(arguments)
         if result == 0 and "--dry-run" not in arguments:
             try:
