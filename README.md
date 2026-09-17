@@ -67,6 +67,8 @@ root 默认值：
   --output-dir "$HOME/Downloads/ND" --command-name nd
 ```
 
+从早期 StreamGrab 版本迁移时，可以继续选择命令名 `d`。安装器只会接管带有旧版 `STREAMGRAB_MANAGED_ENTRY` 或新版 `ND_MANAGED_ENTRY` 标记的入口，不会覆盖其他程序创建的同名命令。
+
 安装器不会静默修改 shell 配置。如果 `~/.local/bin` 不在 PATH，会显示需要添加的命令。
 
 ## 使用

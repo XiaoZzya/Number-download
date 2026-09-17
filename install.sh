@@ -200,10 +200,10 @@ fi
 COMMAND_DIR="$(default_command_dir)"
 COMMAND_PATH="${COMMAND_DIR}/${COMMAND_NAME}"
 existing_command="$(command -v "${COMMAND_NAME}" 2>/dev/null || true)"
-if [[ -e "${COMMAND_PATH}" ]] && ! grep -q 'ND_MANAGED_ENTRY' "${COMMAND_PATH}" 2>/dev/null; then
+if [[ -e "${COMMAND_PATH}" ]] && ! grep -Eq 'ND_MANAGED_ENTRY|STREAMGRAB_MANAGED_ENTRY' "${COMMAND_PATH}" 2>/dev/null; then
   echo "错误：命令路径已存在且不属于 ND：${COMMAND_PATH}" >&2; exit 1
 fi
-if [[ -n "${existing_command}" && "${existing_command}" != "${COMMAND_PATH}" ]] && ! grep -q 'ND_MANAGED_ENTRY' "${existing_command}" 2>/dev/null; then
+if [[ -n "${existing_command}" && "${existing_command}" != "${COMMAND_PATH}" ]] && ! grep -Eq 'ND_MANAGED_ENTRY|STREAMGRAB_MANAGED_ENTRY' "${existing_command}" 2>/dev/null; then
   echo "错误：命令 ${COMMAND_NAME} 已被占用：${existing_command}" >&2; exit 1
 fi
 
