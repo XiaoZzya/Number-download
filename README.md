@@ -107,6 +107,8 @@ nd update
 
 更新器只接受本项目固定 GitHub 地址，使用 `git merge --ff-only`，并在源码存在未提交修改时拒绝覆盖。根据当前配置升级不会改变安装目录、下载目录、命令、历史或 profile。
 
+正常运行 `nd` 命令时会先检查本项目是否有新版本。发现新版后提示是否更新，直接回车默认为“是”；选择拒绝或网络检查失败不会阻止原命令继续运行。非交互环境只提示并继续，不会擅自更新。
+
 `nd update-tools` 只更新 `N_m3u8DL-RE`。
 
 ## 卸载
@@ -145,3 +147,12 @@ python3 -m venv .venv
 ```
 
 项目采用 MIT License。
+
+## 打赏支持
+
+如果这个项目对你有帮助，欢迎请作者喝杯咖啡。
+
+<p align="center">
+  <img src="assets/wechat-donate.jpg" alt="微信支付收款码" width="360">
+  <img src="assets/alipay-donate.png" alt="支付宝收款码" width="360">
+</p>

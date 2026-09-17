@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "number-download"
-version = "0.4.1"
+version = "0.5.0"
 description = "Number download：公开 HLS 地址解析与下载编排工具"
 readme = "README.md"
 requires-python = ">=3.11"

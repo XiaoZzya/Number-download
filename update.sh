@@ -24,8 +24,8 @@ INSTALL_ROOT="${metadata[0]}"; OUTPUT_ROOT="${metadata[1]}"; COMMAND_NAME="${met
 echo "1. 根据当前配置升级"
 echo "2. 重新配置后升级"
 echo "0. 取消"
-read -r -p "请选择 [0-2]：" choice
-case "${choice:-0}" in
+read -r -p "请选择 [0-2]（默认 1）：" choice
+case "${choice:-1}" in
   1) mode=(--upgrade-current --install-dir "${INSTALL_ROOT}" --output-dir "${OUTPUT_ROOT}" --command-name "${COMMAND_NAME}") ;;
   2) mode=(--reconfigure --install-dir "${INSTALL_ROOT}") ;;
   0) exit 0 ;;

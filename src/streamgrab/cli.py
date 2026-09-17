@@ -23,6 +23,7 @@ from .models import BrowserConfig, DownloadRequest, MediaInfo, SearchResult, Var
 from .naming import numbered_name, safe_title_filename
 from .paths import data_dir
 from .provider import PlaywrightJableProvider, normalize_media_id, try_normalize_media_id
+from .project_update import check_project_update
 from .redact import redact_command
 from .tools import fetch_latest_release, find_ffmpeg, install_release, should_check
 
@@ -397,6 +398,26 @@ def run_self_update(argv: list[str]) -> int:
     return 0
 
 
+def _check_update_before_command(arguments: list[str]) -> int | None:
+    if not arguments or arguments[0] == "update" or any(flag in arguments for flag in ("-h", "--help", "--version")):
+        return None
+    config = load_config()
+    update = check_project_update(__version__, timeout=min(config.timeout_seconds, 6.0))
+    if update is None:
+        return None
+    print(f"发现 ND 新版本：{update.latest}（当前 {update.current}）")
+    if not sys.stdin.isatty():
+        print("当前不是交互终端，跳过更新并继续运行。")
+        return None
+    if _confirm("是否现在更新？", default=True):
+        result = run_self_update([])
+        if result == 0:
+            print("更新完成，请重新运行刚才的命令。")
+        return result
+    print("已跳过更新，继续运行。")
+    return None
+
+
 def run_history(argv: list[str]) -> int:
     args = _management_parser("history").parse_args(argv)
     if args.limit < 1 or args.limit > 1000:
@@ -414,6 +435,9 @@ def run_history(argv: list[str]) -> int:
 def main(argv: list[str] | None = None) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
     try:
+        update_result = _check_update_before_command(arguments)
+        if update_result is not None:
+            return update_result
         if arguments and arguments[0] == "doctor":
             return run_doctor(arguments[1:])
         if arguments and arguments[0] == "update-tools":
