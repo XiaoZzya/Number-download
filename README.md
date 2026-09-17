@@ -38,7 +38,7 @@ git clone https://github.com/XiaoZzya/Number-download.git /opt/ND/source
 安装菜单：
 
 ```text
-1. 安装或升级
+1. 安装
 2. 卸载
 3. 打赏支持
 0. 退出
@@ -155,6 +155,7 @@ python3 -m venv .venv
 如果这个项目对你有帮助，欢迎请作者喝杯咖啡。
 
 <p align="center">
-  <img src="assets/wechat-donate.jpg" alt="微信支付收款码" width="360">
-  <img src="assets/alipay-donate.png" alt="支付宝收款码" width="360">
+  <img src="assets/wechat-donate.jpg" alt="微信支付收款码" height="260">
+  &nbsp;&nbsp;
+  <img src="assets/alipay-donate.png" alt="支付宝收款码" height="260">
 </p>

@@ -10,7 +10,7 @@ def test_installer_targets_debian_layout_and_safe_command_conflict():
     assert "rm -rf" not in script
     assert "curl | bash" not in script
     assert "ND_MANAGED_ENTRY|STREAMGRAB_MANAGED_ENTRY" in script
-    assert "1. 安装或升级" in script
+    assert "1. 安装" in script
     assert "2. 卸载" in script
     assert "3. 打赏支持" in script
     assert 'printf \'/opt/ND' in script

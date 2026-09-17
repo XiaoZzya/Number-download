@@ -76,7 +76,7 @@ if [[ -z "${ACTION}" && -z "${INSTALL_DIR_ARG}" && -t 0 ]]; then
   printf '\n╔════════════════════════════════╗\n'
   printf '║       Number download / ND     ║\n'
   printf '╠════════════════════════════════╣\n'
-  printf '║  1. 安装或升级                 ║\n'
+  printf '║  1. 安装                       ║\n'
   printf '║  2. 卸载                       ║\n'
   printf '║  3. 打赏支持                   ║\n'
   printf '║  0. 退出                       ║\n'
@@ -284,6 +284,6 @@ if [[ "${SOURCE_DIR}" != "${INSTALL_ROOT}/source" && ! -d "${INSTALL_ROOT}/sourc
   git clone --branch main --single-branch "${REPO_URL}" "${INSTALL_ROOT}/source"
 fi
 
-echo "安装/升级完成。命令：${COMMAND_PATH}"
+echo "安装完成。命令：${COMMAND_PATH}"
 if [[ ":${PATH}:" != *":${COMMAND_DIR}:"* ]]; then echo "提示：${COMMAND_DIR} 不在 PATH，请加入：export PATH=\"${COMMAND_DIR}:\$PATH\""; fi
 echo "运行检查：${COMMAND_NAME} doctor"
