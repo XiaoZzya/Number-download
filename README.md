@@ -1,6 +1,7 @@
 # Number download
 
 番号下载器，根据车牌/番号，搜索并下载合并
+
 Number download（命令名 `nd`）是面向 Debian 13 x86_64 无桌面服务器的交互式下载编排工具。它使用 Xvfb 中的 Chromium 定位公开作品页面并捕获公开 HLS 地址，再调用 [`N_m3u8DL-RE`](https://github.com/nilaoda/N_m3u8DL-RE) 下载和混流。
 
 > 仅用于你有权访问和下载的内容。ND 不自动登录、不导出 Cookie、不解决验证码，也不绕过 DRM、付费墙或访问控制。
